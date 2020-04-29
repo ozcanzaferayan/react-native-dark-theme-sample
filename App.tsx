@@ -1,118 +1,143 @@
-/**
- * Sample React Native App
- * https://github.com/facebook/react-native
- *
- * Generated with the TypeScript template
- * https://github.com/react-native-community/react-native-template-typescript
- *
- * @format
- */
-
-import React from 'react';
+import React, {useState} from 'react';
 import {
-  SafeAreaView,
   StyleSheet,
-  ScrollView,
   View,
   Text,
+  Image,
+  SafeAreaView,
   StatusBar,
+  ImageRequireSource,
 } from 'react-native';
 
-import {
-  Header,
-  LearnMoreLinks,
-  Colors,
-  DebugInstructions,
-  ReloadInstructions,
-} from 'react-native/Libraries/NewAppScreen';
+import {useDarkModeContext} from 'react-native-dark-mode';
+import RadioGroup from './src/RadioGroup';
 
-declare const global: {HermesInternal: null | {}};
+type Theme = {
+  primary: string;
+  secondary: string;
+  text: string;
+  textSecondary: string;
+  background: string;
+  planet: ImageRequireSource;
+};
+
+type Themes = {
+  black: Theme;
+  dark: Theme;
+  light: Theme;
+};
+
+export type Item = {
+  id: string;
+  name: string;
+};
+export type RadioGroupProps = {
+  items: Item[];
+  selected?: Item;
+  onSelected(item: Item): void;
+};
+export type RadioButtonProps = {
+  item: Item;
+  selected?: Item;
+  onSelected(item: Item): void;
+};
 
 const App = () => {
+  const items: Item[] = [
+    {id: 'system', name: 'System'},
+    {id: 'black', name: 'Black'},
+    {id: 'dark', name: 'Dark'},
+    {id: 'light', name: 'Light'},
+  ];
+  const [selected, setSelected] = useState<Item>(items[0]);
+  const systemThemeString = useDarkModeContext();
+  const themeString =
+    selected.id === 'system' ? systemThemeString : selected.id;
+  const barStyle = themeString === 'dark' ? 'dark-content' : 'light-content';
+  const theme = themes[themeString];
+  const styles = customStyles(theme);
+
+  const onSelected = (item: Item) => {
+    setSelected(item);
+  };
+
   return (
     <>
-      <StatusBar barStyle="dark-content" />
-      <SafeAreaView>
-        <ScrollView
-          contentInsetAdjustmentBehavior="automatic"
-          style={styles.scrollView}>
-          <Header />
-          {global.HermesInternal == null ? null : (
-            <View style={styles.engine}>
-              <Text style={styles.footer}>Engine: Hermes</Text>
-            </View>
-          )}
-          <View style={styles.body}>
-            <View style={styles.sectionContainer}>
-              <Text style={styles.sectionTitle}>Step One</Text>
-              <Text style={styles.sectionDescription}>
-                Edit <Text style={styles.highlight}>App.tsx</Text> to change
-                this screen and then come back to see your edits.
-              </Text>
-            </View>
-            <View style={styles.sectionContainer}>
-              <Text style={styles.sectionTitle}>See Your Changes</Text>
-              <Text style={styles.sectionDescription}>
-                <ReloadInstructions />
-              </Text>
-            </View>
-            <View style={styles.sectionContainer}>
-              <Text style={styles.sectionTitle}>Debug</Text>
-              <Text style={styles.sectionDescription}>
-                <DebugInstructions />
-              </Text>
-            </View>
-            <View style={styles.sectionContainer}>
-              <Text style={styles.sectionTitle}>Learn More</Text>
-              <Text style={styles.sectionDescription}>
-                Read the docs to discover what to do next:
-              </Text>
-            </View>
-            <LearnMoreLinks />
-          </View>
-        </ScrollView>
+      <StatusBar barStyle={barStyle} />
+      <SafeAreaView style={styles.safeAreaView}>
+        <View style={styles.container}>
+          <Image source={theme.planet} style={styles.img} />
+          <Text style={styles.title}>Title</Text>
+          <Text style={styles.description}>Description</Text>
+        </View>
+        <View style={styles.bottomBar}>
+          <RadioGroup
+            selected={selected}
+            onSelected={onSelected}
+            items={items}
+          />
+        </View>
       </SafeAreaView>
     </>
   );
 };
 
-const styles = StyleSheet.create({
-  scrollView: {
-    backgroundColor: Colors.lighter,
+const themes: Themes = {
+  black: {
+    primary: '#1da1f2',
+    secondary: '#8ed0f9',
+    text: '#d9d9d9',
+    textSecondary: '#6e767d',
+    background: '#000000',
+    planet: require('./img/moon_black.png'),
   },
-  engine: {
-    position: 'absolute',
-    right: 0,
+  dark: {
+    primary: '#1da1f2',
+    secondary: '#8ed0f9',
+    text: '#ffffff',
+    textSecondary: '#8899a6',
+    background: '#15202b',
+    planet: require('./img/moon_dark.png'),
   },
-  body: {
-    backgroundColor: Colors.white,
+  light: {
+    primary: '#1da1f2',
+    secondary: '#8ed0f9',
+    text: '#14171a',
+    textSecondary: '#657786',
+    background: '#ffffff',
+    planet: require('./img/sun.png'),
   },
-  sectionContainer: {
-    marginTop: 32,
-    paddingHorizontal: 24,
-  },
-  sectionTitle: {
-    fontSize: 24,
-    fontWeight: '600',
-    color: Colors.black,
-  },
-  sectionDescription: {
-    marginTop: 8,
-    fontSize: 18,
-    fontWeight: '400',
-    color: Colors.dark,
-  },
-  highlight: {
-    fontWeight: '700',
-  },
-  footer: {
-    color: Colors.dark,
-    fontSize: 12,
-    fontWeight: '600',
-    padding: 4,
-    paddingRight: 12,
-    textAlign: 'right',
-  },
-});
+};
+
+const customStyles = (t: Theme) =>
+  StyleSheet.create({
+    safeAreaView: {
+      flex: 1,
+      justifyContent: 'space-between',
+      backgroundColor: t.background,
+    },
+    container: {
+      justifyContent: 'center',
+      alignItems: 'center',
+      flex: 1,
+    },
+    title: {
+      color: t.text,
+      fontSize: 22,
+      marginTop: 12,
+    },
+    description: {
+      color: t.textSecondary,
+      marginTop: 0,
+      marginBottom: 12,
+    },
+    img: {
+      width: 100,
+      height: 100,
+    },
+    bottomBar: {
+      alignItems: 'center',
+    },
+  });
 
 export default App;
